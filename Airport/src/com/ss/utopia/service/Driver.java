@@ -1,4 +1,4 @@
-package src.com.ss.utopia.service;
+package com.ss.utopia.service;
 
 import java.util.Arrays;
 import java.util.List;

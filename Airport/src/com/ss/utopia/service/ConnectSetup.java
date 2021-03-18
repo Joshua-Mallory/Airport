@@ -1,4 +1,4 @@
-package src.com.ss.utopia.service;
+package com.ss.utopia.service;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
