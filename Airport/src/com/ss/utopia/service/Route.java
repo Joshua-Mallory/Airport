@@ -20,7 +20,7 @@ public class Route {
 		this.destination = destination;
 	}
 
-	public List<Object> getEmployeeRoute() throws Exception {
+	public List<Object> getEmployeeRouteList() throws Exception {
 		ConnectSetup cs = new ConnectSetup();
 		Connection conn = cs.getConnection();
 		PreparedStatement pstmt = conn.prepareStatement("select * from route; ");
@@ -40,6 +40,15 @@ public class Route {
 			emplFlight.add(c);
 		}
 		return emplFlight;
+	}
+
+	public boolean employeeRouteCheck(String air, String city) throws Exception {
+		ConnectSetup cs = new ConnectSetup();
+		Connection conn = cs.getConnection();
+		PreparedStatement pstmt2 = conn
+				.prepareStatement("select * from airport where iata_id= '" + air + "'and city= '" + city + "';");
+		ResultSet rs2 = pstmt2.executeQuery();
+		return rs2.next();
 	}
 
 	public Integer getId() {

@@ -11,6 +11,9 @@ public class Employee {
 	private String destName;
 	private Integer routeID;
 
+	public Employee() {
+	}
+
 	public Employee(Integer routeID, String originID, String originName, String destID, String destName) {
 		this.routeID = routeID;
 		this.originID = originID;
