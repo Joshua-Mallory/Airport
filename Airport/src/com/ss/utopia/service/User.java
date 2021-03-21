@@ -30,12 +30,11 @@ public class User {
 		this.phone = phone;
 	}
 
-	public User getUserCred(String user, String pass) throws Exception {
+	public User getUserCred(Integer user_id) throws Exception {
 		ConnectSetup cs = new ConnectSetup();
 		Connection conn = cs.getConnection();
-		PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM user USER username = '" + user + "';");
-		// pstmt.setString(1, user);
-		// pstmt.setString(2, pass);
+		PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM user where id = ?");
+		pstmt.setInt(1, user_id);
 		ResultSet rs = pstmt.executeQuery();
 
 		rs.next();

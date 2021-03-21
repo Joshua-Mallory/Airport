@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class Flight {
 	private Integer id;
@@ -43,10 +45,11 @@ public class Flight {
 
 	}
 
-	public Flight getFlightData(Integer routeID) throws Exception {
+	public Flight getFlightData(String sql, Integer inID) throws Exception {
 		ConnectSetup cs = new ConnectSetup();
 		Connection conn = cs.getConnection();
-		PreparedStatement pstmt = conn.prepareStatement("select * from flight where route_id= '" + routeID + "';");
+		PreparedStatement pstmt = conn.prepareStatement(sql);
+		pstmt.setInt(1, inID);
 		ResultSet rs = pstmt.executeQuery();
 		rs.next();
 		Integer id = rs.getInt("id");
@@ -65,6 +68,35 @@ public class Flight {
 		Flight f = new Flight(id, route_id, airplane_id, departure_time_date, departure_time_time, arrival_time_date,
 				arrival_time_time, reserved_econ, reserved_bus, reserved_first, econ_price, bus_price, first_price);
 		return f;
+	}
+
+	public List<Object> getFlightDataList(String sql, Integer inID) throws Exception {
+		ConnectSetup cs = new ConnectSetup();
+		Connection conn = cs.getConnection();
+		PreparedStatement pstmt = conn.prepareStatement(sql);
+		pstmt.setInt(1, inID);
+		ResultSet rs = pstmt.executeQuery();
+		List<Object> flights = new ArrayList<Object>();
+		while (rs.next()) {
+			Integer id = rs.getInt("id");
+			Integer route_id = rs.getInt("route_id");
+			Integer airplane_id = rs.getInt("airplane_id");
+			Date departure_time_date = rs.getDate("departure_time");
+			Time departure_time_time = rs.getTime("departure_time");
+			Date arrival_time_date = rs.getDate("arrival_time");
+			Time arrival_time_time = rs.getTime("arrival_time");
+			Integer reserved_econ = rs.getInt("reserved_econ");
+			Integer reserved_bus = rs.getInt("reserved_bus");
+			Integer reserved_first = rs.getInt("reserved_first");
+			float econ_price = rs.getFloat("econ_price");
+			float bus_price = rs.getFloat("bus_price");
+			float first_price = rs.getFloat("first_price");
+			Flight f = new Flight(id, route_id, airplane_id, departure_time_date, departure_time_time,
+					arrival_time_date, arrival_time_time, reserved_econ, reserved_bus, reserved_first, econ_price,
+					bus_price, first_price);
+			flights.add(f);
+		}
+		return flights;
 	}
 
 	public Time getArrival_time_time() {

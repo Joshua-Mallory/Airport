@@ -12,11 +12,10 @@ public class Traveler {
 	public boolean checkUserCred(String user, String pass) throws Exception {
 		ConnectSetup cs = new ConnectSetup();
 		Connection conn = cs.getConnection();
-		PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM user USER username = '" + user + "';");
-		// pstmt.setString(1, user);
-		// pstmt.setString(2, pass);
+		PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM user where username =? and password = ?");
+		pstmt.setString(1, user);
+		pstmt.setString(2, pass);
 		ResultSet rs = pstmt.executeQuery();
-
 		return rs.next();
 	}
 
