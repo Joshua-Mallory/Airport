@@ -3,14 +3,19 @@ package com.ss.utopia.service;
 import java.sql.Time;
 import java.util.Scanner;
 
+import menu.AdminMenu;
 import menu.EmployeeMenu;
 import menu.TravelMenu;
-import menu.AdminMenu;
 
 public class Driver {
 
-	public static void main(String[] args) throws Exception {
-		menuStart();
+	public static void main(String[] args) {
+		try {
+			menuStart();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Some Error Has Occured. Most likely a database sql error.");
+		}
 	}
 
 	public static void menuStart() throws Exception {
@@ -27,14 +32,12 @@ public class Driver {
 			TravelMenu.travelLogin();
 			break;
 		}
-
 	}
 
 	public static Integer scanHandleInt() {
 		Scanner sc = new Scanner(System.in);
 		String cat = sc.nextLine();
 		Integer categ = Integer.parseInt(cat);
-
 		return categ;
 	}
 

@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ss.utopia.service.Driver;
+
 import objects.ConnectSetup;
 import objects.Employee;
 import objects.Route;
@@ -83,5 +85,44 @@ public class RouteDAO {
 				.prepareStatement("select * from airport where iata_id= '" + air + "'and city= '" + city + "';");
 		ResultSet rs2 = pstmt2.executeQuery();
 		return rs2.next();
+	}
+
+	public static boolean airportAddTest(String test) throws Exception {
+		ConnectSetup cs = new ConnectSetup();
+		Connection conn = cs.getConnection();
+		PreparedStatement pstmt = conn.prepareStatement("select * from airport where iata_id= ? ;");
+		pstmt.setString(1, test);
+		ResultSet rs2 = pstmt.executeQuery();
+		return rs2.next();
+	}
+
+	public static void airportAdd() throws Exception {
+		ConnectSetup cs = new ConnectSetup();
+		Connection conn = cs.getConnection();
+		FlightDAO fd = new FlightDAO();
+		RouteDAO rd = new RouteDAO();
+		System.out.println("What is the three letter Airport Origin?");
+		String orig = Driver.scanHandleString();
+		while (airportAddTest(orig)) {
+			System.out.println("Already in the list. Name another three letter Airport Origin.");
+			orig = Driver.scanHandleString();
+		}
+		System.out.println("What is the airport city name?");
+		String city = Driver.scanHandleString();
+		PreparedStatement pstmt = conn.prepareStatement("insert into airport values('?', '?')");
+		pstmt.setString(1, orig);
+		pstmt.setString(2, city);
+		pstmt.execute();
+		conn.commit();
+	}
+
+	public static void airportDisplay() throws Exception {
+		ConnectSetup cs = new ConnectSetup();
+		Connection conn = cs.getConnection();
+		PreparedStatement pstmt = conn.prepareStatement("select * from airport;");
+		ResultSet rs = pstmt.executeQuery();
+		while (rs.next()) {
+			System.out.println(rs.getString("iata_id") + "   " + rs.getString("city"));
+		}
 	}
 }

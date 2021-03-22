@@ -1,7 +1,5 @@
 package menu;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.util.List;
 
 import com.ss.utopia.service.Driver;
@@ -10,7 +8,6 @@ import dao.AirplaneDAO;
 import dao.FlightDAO;
 import dao.RouteDAO;
 import objects.AirplaneType;
-import objects.ConnectSetup;
 import objects.Employee;
 import objects.Flight;
 
@@ -65,7 +62,7 @@ public class EmployeeMenu {
 			emp3Update(e);
 			break;
 		case 3:
-			menu3Seats(e);
+			menu3SeatsAdd(e);
 			break;
 		case 4:
 			employeeMenu2();
@@ -113,54 +110,11 @@ public class EmployeeMenu {
 		employeeMenu3(e);
 	}
 
-	public static void menu3Seats(Employee e) throws Exception {
-		FlightDAO fDOA = new FlightDAO();
-		String sql = "select * from flight where route_id= ?";
-		Flight f = fDOA.getFlightData(sql, e.getRouteID());
-		System.out.println(
-				"Pick the Seat Class you want to add seats of, to your flight:\n1) View Flight Details\n1) First\n2) Business\n3) Economy\n4) Quit to cancel operation");
-		AirplaneDAO ad = new AirplaneDAO();
-		AirplaneType at = new AirplaneType();
-		at = ad.getAirplaneType((ad.getAirplane(f.getAirplane_id())).getType_id());
-		Integer firstPlace = at.getFirst_capacity() - f.getReserved_first();
-		Integer busPlace = at.getBus_capacity() - f.getReserved_bus();
-		Integer econPlace = at.getEcon_capacity() - f.getReserved_econ();
-		Integer categ = Driver.scanHandleInt();
-		ConnectSetup cs = new ConnectSetup();
-		Connection conn = cs.getConnection();
-		switch (categ) {
-		case 1:
-			System.out.println(
-					"Existing number of First Class seats: " + firstPlace + ".\nHow many would you like to reserve?");
-			Integer temp = Driver.scanHandleInt();
-			f.setReserved_first(f.getReserved_first() + temp);
-			PreparedStatement pstmt2 = conn.prepareStatement("UPDATE flight SET reserved_first = ?  WHERE route_id=?");
-			pstmt2.setInt(1, f.getReserved_first());
-			pstmt2.setInt(2, f.getRoute_id());
-			pstmt2.execute();
-			break;
-		case 2:
-			System.out.println(
-					"Existing number of Business Class seats: " + busPlace + ".\nHow many would you like to reserve?");
-			Integer temp2 = Driver.scanHandleInt();
-			f.setReserved_bus(f.getReserved_bus() + temp2);
-			PreparedStatement pstmt3 = conn.prepareStatement("UPDATE flight SET reserved_bus = ?  WHERE route_id=?");
-			pstmt3.setInt(1, f.getReserved_bus());
-			pstmt3.setInt(2, f.getRoute_id());
-			pstmt3.execute();
-			break;
-		case 3:
-			System.out.println("Existing number of Economy Class seats: " + econPlace);
-			Integer temp3 = Driver.scanHandleInt();
-			f.setReserved_econ(f.getReserved_econ() + temp3);
-			PreparedStatement pstmt4 = conn.prepareStatement("UPDATE flight SET reserved_econ = ?  WHERE route_id=?");
-			pstmt4.setInt(1, f.getReserved_econ());
-			pstmt4.setInt(2, f.getRoute_id());
-			pstmt4.execute();
-			break;
-		case 4:
+	public static void menu3SeatsAdd(Employee e) throws Exception {
+		FlightDAO fd = new FlightDAO();
+		Integer categ = fd.seatsAdd(e, false);
+		if (categ == 4) {
 			employeeMenu3(e);
-			break;
 		}
 		employeeMenu3(e);
 

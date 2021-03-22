@@ -11,6 +11,7 @@ import java.util.List;
 
 import com.ss.utopia.service.Driver;
 
+import objects.AirplaneType;
 import objects.ConnectSetup;
 import objects.Employee;
 import objects.Flight;
@@ -55,6 +56,20 @@ public class FlightDAO {
 		rs.next();
 		Flight_Bookings fb = new Flight_Bookings(rs.getInt("flight_id"), rs.getInt("booking_id"));
 		return fb;
+	}
+
+	public List<Object> getFlightbookList(Integer book_id) throws Exception {
+		ConnectSetup cs = new ConnectSetup();
+		Connection conn = cs.getConnection();
+		PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM flight_bookings where flight_id= ? ");
+		pstmt.setInt(1, book_id);
+		ResultSet rs = pstmt.executeQuery();
+		List<Object> fbl = new ArrayList<Object>();
+		while (rs.next()) {
+			Flight_Bookings fb = new Flight_Bookings(rs.getInt("flight_id"), rs.getInt("booking_id"));
+			fbl.add(fb);
+		}
+		return fbl;
 	}
 
 	public Flight flightOverlap(ResultSet rs) throws SQLException {
@@ -244,6 +259,130 @@ public class FlightDAO {
 
 	}
 
+	public Integer seatsAdd(Employee e, boolean permission) throws Exception {
+		FlightDAO fDOA = new FlightDAO();
+		String sql = "select * from flight where route_id= ?";
+		Flight f = fDOA.getFlightData(sql, e.getRouteID());
+		AirplaneDAO ad = new AirplaneDAO();
+		AirplaneType at = new AirplaneType();
+		at = ad.getAirplaneType((ad.getAirplane(f.getAirplane_id())).getType_id());
+
+		Integer firstPlace = at.getFirst_capacity() - f.getReserved_first();
+		Integer busPlace = at.getBus_capacity() - f.getReserved_bus();
+		Integer econPlace = at.getEcon_capacity() - f.getReserved_econ();
+		System.out.println("Existing number of First Class seats: " + firstPlace + ".");
+		System.out.println("Existing number of Business Class seats: " + busPlace + ".");
+		System.out.println("Existing number of Economy Class seats: " + econPlace + ".");
+		System.out.println(
+				"Pick the Seat Class you want to modify seats of, to your flight:\n1) First\n2) Business\n3) Economy\n4) Quit to cancel operation");
+
+		Integer categ = Driver.scanHandleInt();
+		ConnectSetup cs = new ConnectSetup();
+		Connection conn = cs.getConnection();
+		switch (categ) {
+		case 1:
+			System.out.println("Existing number of First Class seats: " + firstPlace + ".");
+			if (!permission) {
+				System.out.println("How many would you like to reserve");
+			}
+			boolean add = true;
+			if (permission) {
+				System.out.println("Would you like to\n1) Add seats\n2) Remove seats");
+				Integer temp2 = Driver.scanHandleInt();
+				switch (temp2) {
+				case 1:
+					System.out.println("How many seats would you like to reserve");
+					break;
+				case 2:
+					System.out.println("How many seats would you like to remove");
+					add = false;
+					break;
+				}
+			}
+			Integer temp = Driver.scanHandleInt();
+			if (add)
+				f.setReserved_first(f.getReserved_first() + temp);
+			else if (!add)
+				f.setReserved_first(f.getReserved_first() - temp);
+			PreparedStatement pstmt2 = conn.prepareStatement("UPDATE flight SET reserved_first = ?  WHERE route_id=?");
+			pstmt2.setInt(1, f.getReserved_first());
+			pstmt2.setInt(2, f.getRoute_id());
+			pstmt2.execute();
+			break;
+		case 2:
+			System.out.println("Existing number of Business Class seats: " + busPlace + ".");
+			if (!permission) {
+				System.out.println("How many would you like to reserve");
+			}
+			boolean add2 = true;
+			if (permission) {
+				System.out.println("Would you like to\n1) Add seats\n2) Remove seats?");
+				Integer temp2 = Driver.scanHandleInt();
+				switch (temp2) {
+				case 1:
+					System.out.println("How many seats would you like to reserve");
+					break;
+				case 2:
+					System.out.println("How many seats would you like to remove");
+					add2 = false;
+					break;
+				}
+			}
+
+			Integer temp2 = Driver.scanHandleInt();
+			if (add2)
+				f.setReserved_bus(f.getReserved_bus() + temp2);
+			else if (!add2)
+				f.setReserved_bus(f.getReserved_bus() - temp2);
+			PreparedStatement pstmt3 = conn.prepareStatement("UPDATE flight SET reserved_bus = ?  WHERE route_id=?");
+			pstmt3.setInt(1, f.getReserved_bus());
+			pstmt3.setInt(2, f.getRoute_id());
+			pstmt3.execute();
+			break;
+		case 3:
+			System.out.println("Existing number of Economy Class seats: " + econPlace + ".");
+			if (!permission) {
+				System.out.println("How many would you like to reserve");
+			}
+			boolean add3 = true;
+			if (permission) {
+				System.out.println("Would you like to\n1) Add seats\n2) Remove seats?");
+				Integer temp3 = Driver.scanHandleInt();
+				switch (temp3) {
+				case 1:
+					System.out.println("How many seats would you like to reserve");
+					break;
+				case 2:
+					System.out.println("How many seats would you like to remove");
+					add3 = false;
+					break;
+				}
+			}
+			Integer temp3 = Driver.scanHandleInt();
+			if (add3)
+				f.setReserved_econ(f.getReserved_econ() + temp3);
+			else if (!add3)
+				f.setReserved_econ(f.getReserved_econ() - temp3);
+			PreparedStatement pstmt4 = conn.prepareStatement("UPDATE flight SET reserved_econ = ?  WHERE route_id=?");
+			pstmt4.setInt(1, f.getReserved_econ());
+			pstmt4.setInt(2, f.getRoute_id());
+			pstmt4.execute();
+			break;
+		case 4:
+			conn.commit();
+			return categ;
+		}
+		conn.commit();
+		firstPlace = at.getFirst_capacity() - f.getReserved_first();
+		busPlace = at.getBus_capacity() - f.getReserved_bus();
+		econPlace = at.getEcon_capacity() - f.getReserved_econ();
+		System.out.println("\nUpdated Seat Record");
+		System.out.println("Existing number of First Class seats: " + firstPlace + ".");
+		System.out.println("Existing number of Business Class seats: " + busPlace + ".");
+		System.out.println("Existing number of Economy Class seats: " + econPlace + ".");
+		return categ;
+	}
+
 	public void insertFlight(Integer airType, String orig, String dest) throws Exception {
 		ConnectSetup cs = new ConnectSetup();
 		Connection conn = cs.getConnection();
@@ -264,8 +403,33 @@ public class FlightDAO {
 		insertFlightDetails(e, getFlightData(sql, e.getRouteID()));
 	}
 
-	public void deleteFlight() {
-
+	public void deleteFlight(Employee e) throws Exception {
+		ConnectSetup cs = new ConnectSetup();
+		Connection conn = cs.getConnection();
+		FlightDAO fd = new FlightDAO();
+		Integer id = e.getRouteID();
+		Flight f = fd.getFlightData("select * from flight where route_id= ?", id);
+		List<Object> fbl = fd.getFlightbookList(f.getId());
+		Flight_Bookings fb = new Flight_Bookings();
+		PreparedStatement pstmt = conn.prepareStatement("Delete from route where id =?");
+		pstmt.setInt(1, id);
+		pstmt.execute();
+		PreparedStatement pstmt2 = conn.prepareStatement("Delete from flight where route_id =?");
+		pstmt2.setInt(1, id);
+		pstmt2.execute();
+		PreparedStatement pstmt3 = conn.prepareStatement("Delete from flight_bookings where flight_id =?");
+		pstmt3.setInt(1, f.getId());
+		pstmt3.execute();
+		for (int i = 0; i < fbl.size(); i++) {
+			fb = (Flight_Bookings) fbl.get(i);
+			PreparedStatement pstmt4 = conn.prepareStatement("Delete from booking where id =?");
+			pstmt4.setInt(1, fb.getBooking_id());
+			pstmt4.execute();
+			PreparedStatement pstmt5 = conn.prepareStatement("Delete from passenger where booking_id =?");
+			pstmt5.setInt(1, fb.getBooking_id());
+			pstmt5.execute();
+		}
+		conn.commit();
 	}
 
 }

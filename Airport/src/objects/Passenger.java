@@ -84,4 +84,12 @@ public class Passenger {
 		this.address = address;
 	}
 
+	public String getSeat_type() {
+		return seat_type;
+	}
+
+	public void setSeat_type(String seat_type) {
+		this.seat_type = seat_type;
+	}
+
 }

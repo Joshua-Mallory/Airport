@@ -5,6 +5,7 @@ import java.util.List;
 import com.ss.utopia.service.Driver;
 
 import dao.FlightDAO;
+import dao.PassengerDAO;
 import dao.RouteDAO;
 import objects.Employee;
 
@@ -19,13 +20,13 @@ public class AdminMenu {
 			flights();
 			break;
 		case 2:
-
+			adminSeats();
 			break;
 		case 3:
-
+			adminTickets();
 			break;
 		case 4:
-
+			adminAirport();
 			break;
 		case 5:
 
@@ -71,13 +72,14 @@ public class AdminMenu {
 				fd.insertFlightDetails(e, fd.getFlightData(sql, e.getRouteID()));
 				break;
 			case 3:
-				fd.deleteFlight();
+				fd.deleteFlight(e);
 				break;
 			case 4:
 				adminMenu();
 				break;
 			}
 		}
+		adminMenu();
 	}
 
 	public static void flightsAdd() throws Exception {
@@ -91,5 +93,71 @@ public class AdminMenu {
 		Integer airType = Driver.scanHandleInt();
 		fd.insertFlight(airType, orig, dest);
 		Employee e = rd.getEmployee(orig, dest);
+	}
+
+	public static void adminSeats() throws Exception {
+		System.out.println("Select a flight to view add/update/remove or view its seats.");
+		RouteDAO rd = new RouteDAO();
+		Employee e = new Employee();
+		List<Object> flights = rd.getEmployeeRouteList();
+		int i;
+		for (i = 0; i < flights.size(); i++) {
+			e = (Employee) flights.get(i);
+			System.out.println((i + 1) + ") " + e.empRoutePrint());
+		}
+		System.out.println(i + 1 + ") Quit to main menu");
+		Integer categ = Driver.scanHandleInt();
+		if (categ - 1 == i) {
+			adminMenu();
+		} else if (categ <= flights.size()) {
+			e = (Employee) (flights.get(categ - 1));
+			FlightDAO fd = new FlightDAO();
+			fd.seatsAdd(e, true);
+		}
+		adminMenu();
+	}
+
+	public static void adminTickets() throws Exception {
+		System.out.println("Tickets and Passengers\n1) Add\n2) Update\n3) Delete\n4) Read\n5) Quit to admin main menu");
+		Integer temp = Driver.scanHandleInt();
+		switch (temp) {
+		case 1:
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
+		case 4:
+			PassengerDAO.adminPrintBook();
+			PassengerDAO.passengerPrint();
+			adminMenu();
+			break;
+		case 5:
+			adminMenu();
+		}
+		adminMenu();
+	}
+
+	public static void adminAirport() throws Exception {
+		System.out.println("Airports\n1) Add\n2) Update\n3) Delete\n4) Read\n5) Quit to admin main menu");
+		Integer temp = Driver.scanHandleInt();
+		RouteDAO rd = new RouteDAO();
+		switch (temp) {
+		case 1:
+			rd.airportAdd();
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
+		case 4:
+			rd.airportDisplay();
+			break;
+		case 5:
+			adminMenu();
+			break;
+
+		}
+
 	}
 }
